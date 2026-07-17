@@ -123,6 +123,73 @@
   border: 1px dashed #e74c3c !important;
   text-align: center;
 }
+
+@media (max-width: 640px) {
+  .suggestions {
+    position: absolute !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+  }
+  .input-container {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .guess-row {
+    margin-bottom: 6px !important;
+  }
+}
+#mobileResultsWrap { display: none; }
+@media (max-width: 640px) {
+  #resultsTable { display: none !important; }
+  #mobileResultsWrap {
+    display: flex;
+    border: 1px solid #55493a;
+    border-radius: 6px;
+    max-height: 55vh;
+    overflow: hidden;
+  }
+}
+.mobile-label-col {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--charcoal-light, #2a2018);
+  border-right: 1px solid #55493a;
+}
+.mobile-columns {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-column {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-width: 92px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.mobile-cell {
+  padding: 6px 8px;
+  min-height: 34px;
+  font-size: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-header {
+  font-weight: bold;
+  justify-content: flex-start;
+  padding: 6px 10px;
+}
 </style>
 </head>
 <body class="theme-dino">
@@ -218,6 +285,7 @@
     <div>Room code: <strong id="mpRoomCodeDisplay" style="letter-spacing:2px; color:#9b59b6;"></strong></div>
     <div id="mpPlayerList" style="opacity:0.8; margin-top:4px;"></div>
     <button class="mode-btn" id="mpStartBtn" style="display:none; margin-top:8px; font-size:0.8rem; padding:6px 14px; border-radius:20px;">Start Match</button>
+    <button class="mode-btn" id="mpLeaveBtn" style="margin-top:6px; font-size:0.8rem; padding:6px 14px; border-radius:20px; opacity:0.6;">Leave Lobby</button>
   </div>
 </div>
 <div id="mpLiveStatus" style="display:none; text-align:center; font-size:0.8rem; opacity:0.85; margin-bottom:8px;"></div>
@@ -273,6 +341,20 @@
           <tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>
         </tbody>
       </table>
+      <div id="mobileResultsWrap">
+      <div class="mobile-label-col">
+        <div class="mobile-cell mobile-header">Name</div>
+        <div class="mobile-cell mobile-header">1st Letter</div>
+        <div class="mobile-cell mobile-header">Period</div>
+        <div class="mobile-cell mobile-header" id="mobileDietHeader">Diet</div>
+        <div class="mobile-cell mobile-header">Continent</div>
+        <div class="mobile-cell mobile-header">Clade</div>
+        <div class="mobile-cell mobile-header">Family</div>
+        <div class="mobile-cell mobile-header">Length</div>
+      </div>
+      <div id="mobileColumns" class="mobile-columns"></div>
+    </div>
+    <div class="legend">
     </div>
     <div class="legend">
       <span><span class="swatch sw-green"></span> Exact match</span>
@@ -462,6 +544,7 @@ function cycleBackground() {
     hintBox.textContent = "";
     guessCountEl.textContent = "Guesses: 0";
     resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
+    document.getElementById("mobileColumns").innerHTML = "";
     modalOverlay.classList.remove("show");
     suggestionsBox.style.display = "none";
   }
@@ -476,7 +559,8 @@ function cycleBackground() {
     activeBtn.classList.add("active");
     headerSubtext.textContent = subtext;
     initBackgroundSlideshow(bgImageSet);    
-    document.getElementById("dietHeader").textContent = db === MARINEREPTILES ? "Prey Type" : "Diet";   
+    document.getElementById("dietHeader").textContent = db === MARINEREPTILES ? "Prey Type" : "Diet";
+    document.getElementById("mobileDietHeader").textContent = db === MARINEREPTILES ? "Prey Type" : "Diet";   
     if (db === DINOSAURS) document.body.className = "theme-dino";
     else if (db === PTEROSAURS) document.body.className = "theme-ptero";
     else if (db === MARINEREPTILES) document.body.className = "theme-marine"; 
@@ -520,12 +604,13 @@ let h2hMyResults = [];
 let h2hRoundStartTime = null;
 let h2hOpponentData = null;
 
-const MP_SERVER_URL = 'wsssss://dinoguessr-mp.up.railway.app';
+const MP_SERVER_URL = 'wss://dinoguessr-mp.up.railway.app';
   
 let mpSocket = null;
 let mpRoomCode = null;
 let mpIsHost = false;
 let mpOpponentName = 'Opponent';
+let mpMyId = null;
 let mpOpponentResults = [];
 
 function mpConnect(onOpen) {
@@ -562,7 +647,8 @@ function mpSend(obj) {
 function mpHandleMessage(msg) {
   if (msg.type === 'lobby_state') {
     mpRoomCode = msg.code;
-    mpIsHost = msg.yourId ? msg.hostId === msg.yourId : false;
+    if (msg.yourId) mpMyId = msg.yourId;
+    mpIsHost = mpMyId ? msg.hostId === mpMyId : false;
     document.getElementById('mpRoomCodeDisplay').textContent = msg.code;
     document.getElementById('mpPlayerList').textContent = msg.players.map(p => p.name).join(' vs ') || 'Waiting...';
     document.getElementById('mpLobbyStatus').style.display = 'block';
@@ -861,6 +947,7 @@ function startTimeAttack(durationKey) {
   hintBox.style.display = "none";
   guessCountEl.textContent = "Guesses: 0";
   resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
+  document.getElementById("mobileColumns").innerHTML = "";
   modalOverlay.classList.remove("show");
   suggestionsBox.style.display = "none";
 
@@ -1006,6 +1093,7 @@ skipBtn.onclick = () => {
   guessCount = 0;
   guessCountEl.textContent = "Guesses: 0";
   resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
+  document.getElementById("mobileColumns").innerHTML = "";
   pickNewTimeAttackTarget();
   if (timeAttackRemaining <= 0) {
     endTimeAttack();
@@ -1039,6 +1127,15 @@ document.getElementById('mpStartBtn').onclick = () => {
   h2hSeed = Math.floor(Math.random() * 1000000);
   const category = currentDb === DINOSAURS ? 'dino' : currentDb === PTEROSAURS ? 'ptero' : 'marine';
   mpSend({ type: 'start_game', seed: h2hSeed, category, totalRounds: h2hTotalRounds });
+};
+
+document.getElementById('mpLeaveBtn').onclick = () => {
+  mpSend({ type: 'leave_lobby' });
+  mpSocket?.close();
+  mpSocket = null;
+  mpMyId = null;
+  document.getElementById('mpLobbyStatus').style.display = 'none';
+  document.getElementById('mpMenu').style.display = 'flex';
 };
 
 function mpCreateLobby(totalRounds) {
@@ -1109,6 +1206,7 @@ function startH2HRound() {
   hintBox.style.display = "none";
   guessCountEl.textContent = "Guesses: 0";
   resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
+  document.getElementById("mobileColumns").innerHTML = "";
   modalOverlay.classList.remove("show");
 
   h2hRoundIndicator.style.display = "block";
@@ -1284,6 +1382,7 @@ guessInput.addEventListener("input", () => {
     guessCount++;
     guessCountEl.textContent = "Guesses: " + guessCount;
     renderRow(guessed);
+    buildMobileColumn(guessed);
     guessInput.value = "";
 
       if(guessed.name.toLowerCase() === target.name.toLowerCase()){
@@ -1295,6 +1394,7 @@ guessInput.addEventListener("input", () => {
         guessCount = 0;
         guessCountEl.textContent = "Guesses: 0";
         resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
+        document.getElementById("mobileColumns").innerHTML = "";
         pickNewTimeAttackTarget();
       } else if (h2hMode) {
   const timeTaken = Math.round((Date.now() - h2hRoundStartTime) / 1000);
@@ -1318,11 +1418,6 @@ guessInput.addEventListener("input", () => {
   }
 
   /* ---------------- ROW RENDERING & COMPARISON ---------------- */
-  function renderRow(guessed){
-    if(resultsBody.querySelector(".empty-state")){
-      resultsBody.innerHTML = "";
-    }
-
     const DISPUTED_TARGETS = {
     "cryolophosaurus": { agreed: "Neotheropoda", disputed: [
       { name: "Dilophosaurid", direction: "up" },
@@ -1392,8 +1487,60 @@ guessInput.addEventListener("input", () => {
     return { direction: finalDirection };
   }
 
+  function renderRow(guessed){
+    if(resultsBody.querySelector(".empty-state")){
+      resultsBody.innerHTML = "";
+    }
 
     const row = document.createElement("tr");
+
+    function buildMobileColumn(guessed){
+  const col = document.createElement("div");
+  col.className = "mobile-column";
+
+  const add = (cls, text) => {
+    const c = document.createElement("div");
+    c.className = "mobile-cell " + cls;
+    c.textContent = text;
+    col.appendChild(c);
+  };
+
+  add(guessed.name.toLowerCase() === target.name.toLowerCase() ? "cell-correct" : "cell-wrong", guessed.name);
+
+  const gl = guessed.name[0].toUpperCase(), tl = target.name[0].toUpperCase();
+  add(gl === tl ? "cell-correct" : "cell-wrong", gl);
+
+  const field = (idx, value, isMatch) => {
+    if (hiddenColumnIndex === idx) add("blind-box", "Unknown");
+    else add(isMatch ? "cell-correct" : "cell-wrong", value);
+  };
+  field(1, guessed.period, guessed.period === target.period);
+  field(2, guessed.diet, guessed.diet === target.diet);
+  field(3, guessed.continent, guessed.continent === target.continent);
+  field(4, guessed.group, guessed.group === target.group);
+
+  if (hiddenColumnIndex === 5) {
+    add("blind-box", "Unknown");
+  } else {
+    const disputedMatch = isDisputedMatch(target.name, guessed.subgroup);
+    const relatedPairMatch = isRelatedPair(guessed.subgroup, target.subgroup);
+    let cls = "cell-wrong", extra = "";
+    if (guessed.subgroup.toLowerCase() === target.subgroup.toLowerCase()) cls = "cell-correct";
+    else if (disputedMatch) { cls = "cell-close"; extra = " D"; }
+    else if (relatedPairMatch) { cls = "cell-close"; extra = relatedPairMatch.direction === "up" ? " ↑" : " ↓"; }
+    add(cls, guessed.subgroup + extra);
+  }
+
+  if (hiddenColumnIndex === 6) {
+    add("blind-box", "Unknown");
+  } else {
+    const diff = target.length - guessed.length;
+    const match = Math.abs(diff) < 0.5;
+    add(match ? "cell-correct" : "cell-wrong", guessed.length + "m" + (match ? "" : (diff > 0 ? " ↑" : " ↓")));
+  }
+
+  document.getElementById("mobileColumns").appendChild(col);
+}
 
     // NAME
     const nameCell = makeCell(guessed.name, guessed.name.toLowerCase() === target.name.toLowerCase());
@@ -1750,6 +1897,7 @@ guessInput.addEventListener("input", () => {
     });
     if(!discovered) {
       renderRow(target);
+      buildMobileColumn(target);
     }
   });
 
