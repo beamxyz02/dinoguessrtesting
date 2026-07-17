@@ -530,10 +530,29 @@ let mpOpponentResults = [];
 
 function mpConnect(onOpen) {
   if (mpSocket && mpSocket.readyState === WebSocket.OPEN) { onOpen(); return; }
+  const statusEl = document.getElementById('mpRoundStatus');
+  statusEl.textContent = 'Connecting to server...';
+  statusEl.style.display = 'block';
   mpSocket = new WebSocket(MP_SERVER_URL);
-  mpSocket.onopen = onOpen;
+  mpSocket.onopen = () => {
+    statusEl.style.display = 'none';
+    onOpen();
+  };
   mpSocket.onmessage = (evt) => mpHandleMessage(JSON.parse(evt.data));
-  mpSocket.onclose = () => { mpRoundStatus.style.display = 'none'; };
+  mpSocket.onerror = () => {
+    statusEl.textContent = 'Could not connect to server. Try again.';
+    statusEl.style.display = 'block';
+    mpSocket = null;
+  };
+  mpSocket.onclose = (evt) => {
+    if (evt.code !== 1000) {
+      statusEl.textContent = 'Connection lost. Refresh and try again.';
+      statusEl.style.display = 'block';
+    } else {
+      statusEl.style.display = 'none';
+    }
+    mpSocket = null;
+  };
 }
 
 function mpSend(obj) {
@@ -1025,6 +1044,10 @@ document.getElementById('mpStartBtn').onclick = () => {
 function mpCreateLobby(totalRounds) {
   h2hTotalRounds = totalRounds;
   const name = prompt('Your name?', 'Player') || 'Player';
+  document.getElementById('mpCreateChoice').style.display = 'none';
+  const statusEl = document.getElementById('mpRoundStatus');
+  statusEl.textContent = 'Connecting...';
+  statusEl.style.display = 'block';
   mpConnect(() => mpSend({ type: 'create_lobby', name }));
 }
 
