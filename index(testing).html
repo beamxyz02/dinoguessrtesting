@@ -1013,7 +1013,8 @@ document.getElementById('h2hRounds10').onclick = () => mpCreateLobby(10);
 document.getElementById('mpJoinSubmitBtn').onclick = () => {
   const code = document.getElementById('mpJoinCodeInput').value.trim().toUpperCase();
   if (!code) return;
-  mpConnect(() => mpSend({ type: 'join_lobby', code, name: prompt('Your name?', 'Player') || 'Player' }));
+  const name = prompt('Your name?', 'Player') || 'Player';
+  mpConnect(() => mpSend({ type: 'join_lobby', code, name }));
 };
 document.getElementById('mpStartBtn').onclick = () => {
   h2hSeed = Math.floor(Math.random() * 1000000);
@@ -1023,7 +1024,8 @@ document.getElementById('mpStartBtn').onclick = () => {
 
 function mpCreateLobby(totalRounds) {
   h2hTotalRounds = totalRounds;
-  mpConnect(() => mpSend({ type: 'create_lobby', name: prompt('Your name?', 'Player') || 'Player' }));
+  const name = prompt('Your name?', 'Player') || 'Player';
+  mpConnect(() => mpSend({ type: 'create_lobby', name }));
 }
 
 function startMultiplayerMatch(seed, category, totalRounds) {
