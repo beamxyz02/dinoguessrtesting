@@ -435,8 +435,97 @@ footer{
   letter-spacing: 0.5px;
 }
 
-@media (max-width: 600px) {
-  .guess-row{ flex-direction: column; }
-  #guessBtn{ width:100%; }
-  th, td{ font-size: 0.68rem; padding: 6px 1px; }
+#mobileResultsWrap { display: none; }
+@media (max-width: 640px) {
+  #resultsTable { display: none !important; }
+  #mobileResultsWrap {
+    display: block;
+    border: 1px solid #55493a;
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 55vh;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.mobile-guess-table {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(8, 36px);
+  width: max-content;
+}
+
+.mobile-label-col {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--charcoal-light, #2a2018);
+  border-right: 2px solid #55493a;
+}
+
+.mobile-column {
+  min-width: 92px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.mobile-cell {
+  height: 36px;
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.mobile-header {
+  font-weight: bold;
+  justify-content: flex-start;
+  padding: 6px 10px;
+  background: var(--charcoal-light, #2a2018);
+}
+
+@media (max-width: 640px) {
+  .guess-row {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center;
+    gap: 8px;
+  }
+  .input-container {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  #guessBtn {
+    width: auto !important;
+    flex-shrink: 0;
+    padding: 12px 14px;
+  }
+
+  .secondary-actions {
+    gap: 6px;
+  }
+  .secondary-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  th, td { font-size: 0.68rem; padding: 6px 1px; }
+
+  #resultsTable { display: none !important; }
+  #mobileResultsWrap {
+    display: block;
+    border: 1px solid #55493a;
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 55vh;
+    -webkit-overflow-scrolling: touch;
+  }
 }
