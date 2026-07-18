@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>DINOGUESSR — Guess the Dinosaur</title>
   
   <link rel="stylesheet" href="styles.css">
@@ -428,6 +428,15 @@ function cycleBackground() {
   const modeDino = document.getElementById("modeDino");
   const modePtero = document.getElementById("modePtero");
   const modeMarine = document.getElementById("modeMarine");
+
+  function resetMobileColumns() {
+  const mc = document.getElementById("mobileColumns");
+  Array.from(mc.children).forEach(child => {
+    if (!child.classList.contains("mobile-label-col")) {
+      mc.removeChild(child);
+    }
+  });
+}
   /* ---------------- MODE SWITCHING & GAME LOOPS ---------------- */
   function startGame(){
     if (document.getElementById("subModeHardcore").classList.contains("active")) {
@@ -479,10 +488,7 @@ function cycleBackground() {
     hintBox.textContent = "";
     guessCountEl.textContent = "Guesses: 0";
     resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
-    const mc = document.getElementById("mobileColumns");
-  const labelCol = mc.querySelector(".mobile-label-col");
-  mc.innerHTML = "";
-  if (labelCol) mc.appendChild(labelCol);
+    resetMobileColumns();
     modalOverlay.classList.remove("show");
     suggestionsBox.style.display = "none";
   }
@@ -885,10 +891,7 @@ function startTimeAttack(durationKey) {
   hintBox.style.display = "none";
   guessCountEl.textContent = "Guesses: 0";
   resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
-  const mc = document.getElementById("mobileColumns");
-  const labelCol = mc.querySelector(".mobile-label-col");
-  mc.innerHTML = "";
-  if (labelCol) mc.appendChild(labelCol);
+  resetMobileColumns();
   modalOverlay.classList.remove("show");
   suggestionsBox.style.display = "none";
 
@@ -1034,10 +1037,7 @@ skipBtn.onclick = () => {
   guessCount = 0;
   guessCountEl.textContent = "Guesses: 0";
   resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
-  const mc = document.getElementById("mobileColumns");
-const labelCol = mc.querySelector(".mobile-label-col");
-mc.innerHTML = "";
-if (labelCol) mc.appendChild(labelCol);
+  resetMobileColumns();
   pickNewTimeAttackTarget();
   if (timeAttackRemaining <= 0) {
     endTimeAttack();
@@ -1150,10 +1150,7 @@ function startH2HRound() {
   hintBox.style.display = "none";
   guessCountEl.textContent = "Guesses: 0";
   resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
-  const mc = document.getElementById("mobileColumns");
-const labelCol = mc.querySelector(".mobile-label-col");
-mc.innerHTML = "";
-if (labelCol) mc.appendChild(labelCol);
+  resetMobileColumns();
   modalOverlay.classList.remove("show");
 
   h2hRoundIndicator.style.display = "block";
@@ -1341,10 +1338,7 @@ guessInput.addEventListener("input", () => {
         guessCount = 0;
         guessCountEl.textContent = "Guesses: 0";
         resultsBody.innerHTML = '<tr><td colspan="8" class="empty-state">Make your first guess to get some clues.</td></tr>';
-        const mc = document.getElementById("mobileColumns");
-    const labelCol = mc.querySelector(".mobile-label-col");
-    mc.innerHTML = "";
-    if (labelCol) mc.appendChild(labelCol);
+        resetMobileColumns();
         pickNewTimeAttackTarget();
       } else if (h2hMode) {
   const timeTaken = Math.round((Date.now() - h2hRoundStartTime) / 1000);
@@ -1448,7 +1442,9 @@ guessInput.addEventListener("input", () => {
     col.appendChild(c);
   };
 
-  add(guessed.name.toLowerCase() === target.name.toLowerCase() ? "cell-correct" : "cell-wrong", guessed.name);
+  const parts = guessed.name.split(' ');
+  const mobileName = parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : parts[0];
+  add(guessed.name.toLowerCase() === target.name.toLowerCase() ? "cell-correct" : "cell-wrong", mobileName);
 
   const gl = guessed.name[0].toUpperCase(), tl = target.name[0].toUpperCase();
   add(gl === tl ? "cell-correct" : "cell-wrong", gl);
@@ -1899,18 +1895,6 @@ preloadImages(MARINE_BG_IMAGES);
     rulesBtn.style.display = "flex";
   }
   startGame();
-
-  window.addEventListener('keydown', function (e) {
-      if (e.ctrlKey && (e.key === '=' || e.key === '-' || e.key === '0' || e.keyCode === 187 || e.keyCode === 189 || e.keyCode === 48)) {
-          e.preventDefault();
-      }
-  }, { passive: false });
-
-  window.addEventListener('wheel', function (e) {
-      if (e.ctrlKey) {
-          e.preventDefault();
-      }
-  }, { passive: false });
 
   /* ---------------- DAILY COUNTDOWN TIMER ---------------- */
   let countdownInterval = null;
