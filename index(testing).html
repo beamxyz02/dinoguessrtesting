@@ -1363,51 +1363,125 @@ guessInput.addEventListener("input", () => {
 
   /* ---------------- ROW RENDERING & COMPARISON ---------------- */
     const DISPUTED_TARGETS = {
-    "cryolophosaurus": { agreed: "Neotheropoda", disputed: [
-      { name: "Dilophosaurid", direction: "up" },
-      { name: "Tetanuran", direction: "up" }
+    "cryolophosaurus": { agreed: "Averostriformes", disputed: [
+      { name: "Tetanurae", direction: "up" }
     ]},
-    "monolophosaurus": { agreed: "Tetanuran", disputed: [
-      { name: "Megalosaurid", direction: "up" },
-      { name: "Allosaurid", direction: "up" }
+    "dakotaraptor": { agreed: "Unenlagiinae", disputed: [
+      { name: "Dromaeosauridae", direction: "up" }
+    ]},    
+    "deinonychus": { agreed: "Eudromaeosauria", disputed: [
+      { name: "Saurornitholestinae", direction: "up" },
+      { name: "Dromaeosaurinae", direction: "up" },
+      { name: "Velociraptorinae", direction: "up" }
+    ]},      
+    "atrociraptor": { agreed: "Saurornitholestinae", disputed: [
+      { name: "Eudromaeosauria", direction: "up" },
+    ]},  
+    "yuxisaurus": { agreed: "incertae sedis", disputed: [
+      { name: "Ankylosauridae", direction: "up" },
+    ]},     
+    "pyroraptor": { agreed: "incertae sedis", disputed: [
+      { name: "Eudromaeosauria", direction: "up" },
+      { name: "Dromaeosaurinae", direction: "up" },
+      { name: "Velociraptorinae", direction: "up" }
+    ]},      
+    "raptorex": { agreed: "Eutyrannosauria", disputed: [
+      { name: "Tyrannosauridae", direction: "up" }
+    ]},    
+    "yutyrannus": { agreed: "Proceratosauridae", disputed: [
+      { name: "Pantyrannosauria", direction: "up" }
+    ]},       
+    "imperobator": { agreed: "incertae sedis", disputed: [
+      { name: "Unenlagiinae", direction: "up" }
+    ]},   
+    "muttaburrasaurus": { agreed: "incertae sedis", disputed: [
+      { name: "Iguanodontidae", direction: "up" }
+    ]},                   
+    "monolophosaurus": { agreed: "Tetanurae", disputed: [
+      { name: "Megalosauridae", direction: "up" },
+      { name: "Allosauridae", direction: "up" }
     ]},
-    "fukuiraptor": { agreed: "Megaraptorid", disputed: [
-      { name: "Neovenatorid", direction: "up" },
-      { name: "Tyrannosauroid", direction: "up" }
+    "fukuiraptor": { agreed: "Megaraptoridae", disputed: [
+      { name: "Neovenatoridae", direction: "up" },
+      { name: "Tyrannosauroidae", direction: "up" }
     ]},
-    "megaraptor": { agreed: "Megaraptorid", disputed: [
-      { name: "Neovenatorid", direction: "up" },
-      { name: "Tyrannosauroid", direction: "up" }
+    "megaraptor": { agreed: "Megaraptoridae", disputed: [
+      { name: "Neovenatoridae", direction: "up" },
+      { name: "Tyrannosauroidae", direction: "up" }
     ]},
-    "maip": { agreed: "Megaraptorid", disputed: [
-      { name: "Neovenatorid", direction: "up" },
-      { name: "Tyrannosauroid", direction: "up" }
+    "maip": { agreed: "Megaraptoridae", disputed: [
+      { name: "Neovenatoridae", direction: "up" },
+      { name: "Tyrannosauroidae", direction: "up" }
     ]},
-    "australovenator": { agreed: "Megaraptorid", disputed: [
-      { name: "Neovenatorid", direction: "up" },
-      { name: "Tyrannosauroid", direction: "up" }
+    "australovenator": { agreed: "Megaraptoridae", disputed: [
+      { name: "Neovenatoridae", direction: "up" },
+      { name: "Tyrannosauroidae", direction: "up" }
     ]},
     "fukuivenator": { agreed: "Maniraptora", disputed: [
-      { name: "Dromaeosaurid", direction: "up" },
-      { name: "Therizinosaurid", direction: "up" }
+      { name: "Dromaeosauridae", direction: "up" },
+      { name: "Therizinosauridae", direction: "up" }
+    ]},
+    "neovenator": { agreed: "Neovenatorid", disputed: [
+      { name: "Carcharodontosauridae", direction: "up" },
+      { name: "Allosauridae", direction: "up" }
+    ]},
+    "iberospinus": { agreed: "N/A", disputed: [
+      { name: "Baryonychinae", direction: "up" },
+      { name: "Spinosaurinae", direction: "up" }
     ]}
   };
 
   const RELATED_PAIRS = [
-    ["Neovenatorid", "Carcharodontosaurid", "up"],
-    ["Neovenatorid", "Allosaurid", "up"],
-    ["Iguanodontid", "Muttaburrasaurinae", "down"],
-    ["Iguanodontid", "Styracosterna", "up"],
-    ["Paravian", "Dromaeosaurid", "down"],
-    ["Tyrannosauroid", "Proceratosaurid", "down"],
-    ["Ceratopsid", "Neoceratopsian", "up"],
-    ["Hadrosauromorph", "Hadrosauridae", "down"],
+    ["Neovenatoridae", "Carcharodontosauridae", "up"],
+    ["Carcharodontosauridae", "Carcharodontosauria", "up"],
+    ["Neovenatoridae", "Allosauridae", "up"],
+    ["Iguanodontidae", "Muttaburrasaurinae", "down"],
+    ["Iguanodontidae", "Styracosterna", "up"],
+    ["Iguanodontidae", "Dryosauridae", "down"],
+    ["Paraves", "Dromaeosauridae", "down"],
+    ["Tyrannosauroidae", "Proceratosauridae", "down"],
+    ["Ceratopsidae", "Neoceratopsia", "up"],
     ["Tyrannosauroid", "Tyrannosaurid", "down"],
     ["Titanosauriform", "Titanosaur", "down"],
-    ["Ornithomimosaur", "Ornithomimid", "down"],
-    ["Ceratopsid", "Psittacosaurid", "down"],
-    ["Pachycephalosaurian", "Pachycephalosaurid", "down"],
+    ["Ornithomimosauria", "Ornithomimidae", "down"],
+    ["Ceratopsidae", "Psittacosauridae", "down"],
+    ["Pachycephalosauria", "Pachycephalosauridae", "down"],
     ["Sauropodomorph", "Sauropod", "down"],
+    ["Spinosaurinae", "Spinosaurini", "down"],
+    ["Baryonychinae", "Ceratosuchopsini", "down"],
+    ["Carcharodontosaurinae", "Giganotosaurini", "down"],
+    ["Neotheropoda", "Ceratosauria", "down"],
+    ["Neotheropoda", "Abelisauridae", "down"],
+    ["Neotheropoda", "Noasauridae", "down"],
+    ["Neotheropoda", "Tetanurae", "down"],
+    ["Maniraptora", "Scansoriopterygidae", "down"],
+    ["Paraves", "Scansoriopterygidae", "down"],
+    ["Maniraptora", "Dromaeosauridae", "down"],
+    ["Maniraptora", "Paraves", "down"],
+    ["Maniraptora", "Oviraptoridae", "down"],
+    ["Tyrannosauridae", "Tyrannosauroidea", "up"],
+    ["Tyrannosaurini", "Tyrannosauridae", "up"],
+    ["Abelisauridae", "Ceratosauria", "up"],
+    ["Oviraptosauria", "Maniraptora", "up"],
+    ["Maniraptoriform", "Maniraptora", "down"],    
+    ["Dromaeosaurinae", "Eudromaeosauria", "up"],    
+    ["Saurornitholestinae", "Eudromaeosauria", "up"],    
+    ["Velociraptorinae", "Eudromaeosauria", "up"],    
+    ["Unenlagiinae", "Eudromaeosauria", "down"],    
+    ["Velociraptorinae", "Eudromaeosauria", "up"],    
+    ["Microraptoria", "Eudromaeosauria", "up"],    
+    ["Theropod", "Saurischia", "up"],    
+    ["Megalosauridae", "Carnosauria", "up"],    
+    ["Metriacanthosauridae", "Carnosauria", "up"],    
+    ["Maniraptoriform", "Ornithomimosauria", "up"],    
+    ["Macrocheiriformes", "Ornithomimidae", "down"],
+    ["Macrocheiriformes", "Deinocheiridae", "down"],    
+    ["Maniraptoriform", "Maniraptora", "up"],    
+    ["Paraves", "Troodontidae", "down"],    
+    ["Averostra", "Ceratosauria", "down"],    
+    ["Ornithopoda", "Hadrosauridae", "down"],        
+    ["Hadrosauromorpha", "Hadrosauridae", "down"],        
+    ["Styracosterna", "Hadrosauridae", "down"],        
   ];
 
   function isDisputedMatch(targetName, guessedSubgroup) {
