@@ -1401,19 +1401,19 @@ guessInput.addEventListener("input", () => {
       { name: "Megalosauridae", direction: "up" },
       { name: "Allosauridae", direction: "up" }
     ]},
-    "fukuiraptor": { agreed: "Megaraptoridae", disputed: [
+    "fukuiraptor": { agreed: "Megaraptora", disputed: [
       { name: "Neovenatoridae", direction: "up" },
       { name: "Tyrannosauroidae", direction: "up" }
     ]},
-    "megaraptor": { agreed: "Megaraptoridae", disputed: [
+    "megaraptor": { agreed: "Megaraptora", disputed: [
       { name: "Neovenatoridae", direction: "up" },
       { name: "Tyrannosauroidae", direction: "up" }
     ]},
-    "maip": { agreed: "Megaraptoridae", disputed: [
+    "maip": { agreed: "Megaraptora", disputed: [
       { name: "Neovenatoridae", direction: "up" },
       { name: "Tyrannosauroidae", direction: "up" }
     ]},
-    "australovenator": { agreed: "Megaraptoridae", disputed: [
+    "australovenator": { agreed: "Megaraptora", disputed: [
       { name: "Neovenatoridae", direction: "up" },
       { name: "Tyrannosauroidae", direction: "up" }
     ]},
@@ -1421,7 +1421,7 @@ guessInput.addEventListener("input", () => {
       { name: "Dromaeosauridae", direction: "up" },
       { name: "Therizinosauridae", direction: "up" }
     ]},
-    "neovenator": { agreed: "Neovenatorid", disputed: [
+    "neovenator": { agreed: "Carcharodontosauria", disputed: [
       { name: "Carcharodontosauridae", direction: "up" },
       { name: "Allosauridae", direction: "up" }
     ]},
@@ -1479,31 +1479,63 @@ guessInput.addEventListener("input", () => {
     ["Maniraptoriform", "Maniraptora", "up"],    
     ["Paraves", "Troodontidae", "down"],    
     ["Averostra", "Ceratosauria", "down"],    
-    ["Ornithopoda", "Hadrosauridae", "down"],        
-    ["Hadrosauromorpha", "Hadrosauridae", "down"],        
+    ["Ornithopoda", "Hadrosauridae", "down"],      
+    ["Ornithopoda", "Hadrosauromorpha", "down"],        
+    ["Hadrosauromorpha", "Hadrosauridae", "down"],     
+    ["Hadrosauromorpha", "Styracosterna", "up"],        
     ["Styracosterna", "Hadrosauridae", "down"],        
   ];
+  
+function isDisputedMatch(targetName, guessedValue) {
+  const genus = targetName.toLowerCase().split(" ")[0];
+  const entry = DISPUTED_TARGETS[genus];
+  if (!entry) return null;
+  return entry.disputed.find(d => d.name.toLowerCase() === guessedValue.toLowerCase()) || null;
+}
 
-  function isDisputedMatch(targetName, guessedSubgroup) {
-    const entry = DISPUTED_TARGETS[targetName.toLowerCase()];
-    if (!entry) return null;
-    return entry.disputed.find(d => d.name.toLowerCase() === guessedSubgroup.toLowerCase()) || null;
-  }
-
-  function isRelatedPair(sub1, sub2) {
+function isRelatedPair(sub1, sub2) {
     const found = RELATED_PAIRS.find(pair =>
       (pair[0].toLowerCase() === sub1.toLowerCase() && pair[1].toLowerCase() === sub2.toLowerCase()) ||
       (pair[1].toLowerCase() === sub1.toLowerCase() && pair[0].toLowerCase() === sub2.toLowerCase())
     );
     if (!found) return null;
 
-   
     const isFirstMatch = found[0].toLowerCase() === sub1.toLowerCase();
     const assignedDirection = found[2];
     const finalDirection = isFirstMatch ? assignedDirection : (assignedDirection === "up" ? "down" : "up");
 
     return { direction: finalDirection };
+}
+
+function buildComparisonCell(guessedValue, targetValue, targetName) {
+  const cell = document.createElement("td");
+  cell.textContent = guessedValue;
+
+  const disputedMatch = isDisputedMatch(targetName, guessedValue);
+  const relatedPairMatch = isRelatedPair(guessedValue, targetValue);
+
+  if (guessedValue.toLowerCase() === targetValue.toLowerCase()) {
+    cell.classList.add("cell-correct");
+  } else if (disputedMatch) {
+    cell.classList.add("cell-close");
+    const badge = document.createElement("span");
+    badge.textContent = " (?)";
+    badge.title = "Disputed placement";
+    badge.style.fontWeight = "bold";
+    cell.appendChild(badge);
+  } else if (relatedPairMatch) {
+    cell.classList.add("cell-close");
+    const arrow = document.createElement("span");
+    arrow.classList.add("arrow");
+    arrow.textContent = relatedPairMatch.direction === "up" ? " ↑" : " ↓";
+    arrow.title = relatedPairMatch.direction === "up" ? "More derived than target" : "Broader than target";
+    cell.appendChild(arrow);
+  } else {
+    cell.classList.add("cell-wrong");
   }
+
+  return cell;
+}
 
   function buildMobileColumn(guessed) {
   const col = document.createElement("div");
@@ -1530,7 +1562,17 @@ guessInput.addEventListener("input", () => {
   field(1, guessed.period, guessed.period === target.period);
   field(2, guessed.diet, guessed.diet === target.diet);
   field(3, guessed.continent, guessed.continent === target.continent);
-  field(4, guessed.group, guessed.group === target.group);
+  if (hiddenColumnIndex === 4) {
+  add("blind-box", "Unknown");
+} else {
+  const cladeDisputedMatch = isDisputedMatch(target.name, guessed.group);
+  const cladeRelatedMatch = isRelatedPair(guessed.group, target.group);
+  let cladeCls = "cell-wrong", cladeExtra = "";
+  if (guessed.group.toLowerCase() === target.group.toLowerCase()) cladeCls = "cell-correct";
+  else if (cladeDisputedMatch) { cladeCls = "cell-close"; cladeExtra = " ?"; }
+  else if (cladeRelatedMatch) { cladeCls = "cell-close"; cladeExtra = cladeRelatedMatch.direction === "up" ? " ↑" : " ↓"; }
+  add(cladeCls, guessed.group + cladeExtra);
+}
 
   if (hiddenColumnIndex === 5) {
     add("blind-box", "Unknown");
@@ -1601,51 +1643,25 @@ guessInput.addEventListener("input", () => {
       row.appendChild(makeCell(guessed.continent, guessed.continent === target.continent));
     }
 
-    // CLADE (Column 4)
-    if (hiddenColumnIndex === 4) {
-      const blindCell = document.createElement("td");
-      blindCell.textContent = "Unknown";
-      blindCell.classList.add("blind-box");
-      row.appendChild(blindCell);
-    } else {
-      row.appendChild(makeCell(guessed.group, guessed.group === target.group));
-    }
-
-    // FAMILY (Column 5)
-    if (hiddenColumnIndex === 5) {
-      const blindCell = document.createElement("td");
-      blindCell.textContent = "Unknown";
-      blindCell.classList.add("blind-box");
-      row.appendChild(blindCell);
-    } else {
-      const familyCell = document.createElement("td");
-      familyCell.textContent = guessed.subgroup;
-
-      const disputedMatch = isDisputedMatch(target.name, guessed.subgroup);
-      const relatedPairMatch = isRelatedPair(guessed.subgroup, target.subgroup);
-
-      if (guessed.subgroup.toLowerCase() === target.subgroup.toLowerCase()) {
-        familyCell.classList.add("cell-correct");
-      } else if (disputedMatch) {
-        familyCell.classList.add("cell-close");
-        const badge = document.createElement("span");
-        badge.textContent = " D";
-        badge.title = "Disputed placement";
-        badge.style.fontWeight = "bold";
-        familyCell.appendChild(badge);
-      } else if (relatedPairMatch) {
-        familyCell.classList.add("cell-close");
-        const arrow = document.createElement("span");
-        arrow.classList.add("arrow");
-        arrow.textContent = relatedPairMatch.direction === "up" ? " ↑" : " ↓";
-        arrow.title = relatedPairMatch.direction === "up" ? "More derived than target" : "Broader than target";
-        familyCell.appendChild(arrow);
+      // CLADE (Column 4)
+      if (hiddenColumnIndex === 4) {
+        const blindCell = document.createElement("td");
+        blindCell.textContent = "Unknown";
+        blindCell.classList.add("blind-box");
+        row.appendChild(blindCell);
       } else {
-        familyCell.classList.add("cell-wrong");
+        row.appendChild(buildComparisonCell(guessed.group, target.group, target.name));
       }
-      row.appendChild(familyCell);
-    }
 
+      // FAMILY (Column 5)
+      if (hiddenColumnIndex === 5) {
+        const blindCell = document.createElement("td");
+        blindCell.textContent = "Unknown";
+        blindCell.classList.add("blind-box");
+        row.appendChild(blindCell);
+      } else {
+        row.appendChild(buildComparisonCell(guessed.subgroup, target.subgroup, target.name));
+      }
     // LENGTH (Column 6)
     if (hiddenColumnIndex === 6) {
       const blindCell = document.createElement("td");
