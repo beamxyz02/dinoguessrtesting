@@ -465,7 +465,7 @@ footer{
 }
 
 .mobile-column {
-  width: 92px;
+  width: 135px;
   flex-shrink: 0;
   border-right: 1px solid rgba(255,255,255,0.08);
 }
