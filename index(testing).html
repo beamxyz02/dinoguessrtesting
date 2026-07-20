@@ -261,14 +261,14 @@
       <table id="resultsTable">
         <thead>
           <tr>
-            <th style="width: 18%;">Name</th>
-            <th style="width: 10%;">1st Letter</th>
-            <th style="width: 13%;">Period</th>
-            <th id="dietHeader" style="width: 12%;">Diet</th>
-            <th style="width: 15%;">Continent</th>
-            <th style="width: 12%;">Clade</th>
-            <th style="width: 12%;">Family</th>
-            <th style="width: 8%;">Length</th>
+<th style="width: 18%;">Name</th>
+<th style="width: 5%;">1st</th>
+<th style="width: 12%;">Period</th>
+<th id="dietHeader" style="width: 11%;">Diet</th>
+<th style="width: 12%;">Continent</th>
+<th style="width: 17%;">Clade</th>
+<th style="width: 17%;">Family</th>
+<th style="width: 8%;">Length</th>
           </tr>
         </thead>
         <tbody id="resultsBody">
@@ -1235,7 +1235,7 @@ guessInput.addEventListener("input", () => {
       });
       suggestionsBox.appendChild(div);
     });
-    suggestionsBox.style.display = "block";
+    suggestionsBox.style.display = (hiddenColumnIndex !== -1) ? "none" : "block";
   });
 
   document.addEventListener("click", (e) => {
@@ -1261,18 +1261,18 @@ guessInput.addEventListener("input", () => {
       return;
     }
 
-    if (e.key === "Enter") {
-      e.preventDefault();
+if (e.key === "Enter") {
+  e.preventDefault();
 
-      if (suggestionsVisible && currentSuggestions.length > 0) {
-        const chosenIndex = selectedSuggestionIndex >= 0 ? selectedSuggestionIndex : 0;
-        guessInput.value = currentSuggestions[chosenIndex].name;
-      }
+  if (currentSuggestions.length > 0) {
+    const chosenIndex = selectedSuggestionIndex >= 0 ? selectedSuggestionIndex : 0;
+    guessInput.value = currentSuggestions[chosenIndex].name;
+  }
 
-      suggestionsBox.style.display = "none";
-      selectedSuggestionIndex = -1;
-      guessBtn.click();
-    }
+  suggestionsBox.style.display = "none";
+  selectedSuggestionIndex = -1;
+  guessBtn.click();
+}
   });
 
   function highlightSuggestion() {
