@@ -146,7 +146,7 @@
     <h3>Color Legend</h3>
     <div class="rules-legend-row"><span class="rules-legend-swatch sw-green"></span> Exact match</div>
     <div class="rules-legend-row"><span class="rules-legend-swatch sw-yellow"></span> Related clade / Close match</div>
-    <div class="rules-legend-row"><strong>D</strong> Disputed placement (the family classification is debated)</div>
+    <div class="rules-legend-row"><strong>(?)</strong> Disputed placement (the family classification is debated)</div>
     <div class="rules-legend-row"><strong>↑/↓</strong> Whether your guess' clade is broader or more derived</div>
     <div class="rules-legend-row"><span class="rules-legend-swatch sw-red"></span> No match</div>
     <div class="rules-legend-row"><span class="rules-legend-swatch" style="background:#2c3e50; border:1px dashed #e74c3c;"></span> Hidden column (Challenge mode only)</div>
@@ -1368,7 +1368,10 @@ guessInput.addEventListener("input", () => {
     ]},
     "dakotaraptor": { agreed: "Unenlagiinae", disputed: [
       { name: "Dromaeosauridae", direction: "up" }
-    ]},    
+    ]}, 
+    "dakotaraptor": { agreed: "incertae sedis", disputed: [
+      { name: "Yandusaurus", direction: "up" }
+    ]},           
     "deinonychus": { agreed: "Eudromaeosauria", disputed: [
       { name: "Saurornitholestinae", direction: "up" },
       { name: "Dromaeosaurinae", direction: "up" },
@@ -1399,6 +1402,7 @@ guessInput.addEventListener("input", () => {
     ]},                   
     "monolophosaurus": { agreed: "Tetanurae", disputed: [
       { name: "Megalosauridae", direction: "up" },
+      { name: "Spinosauridae", direction: "up" },
       { name: "Allosauridae", direction: "up" }
     ]},
     "fukuiraptor": { agreed: "Megaraptora", disputed: [
@@ -1438,6 +1442,7 @@ guessInput.addEventListener("input", () => {
     ["Iguanodontidae", "Muttaburrasaurinae", "down"],
     ["Iguanodontidae", "Styracosterna", "up"],
     ["Iguanodontidae", "Dryosauridae", "down"],
+    ["Iguanodontidae", "Iguanodontia", "down"],
     ["Paraves", "Dromaeosauridae", "down"],
     ["Tyrannosauroidae", "Proceratosauridae", "down"],
     ["Ceratopsidae", "Neoceratopsia", "up"],
@@ -1447,6 +1452,14 @@ guessInput.addEventListener("input", () => {
     ["Ceratopsidae", "Psittacosauridae", "down"],
     ["Pachycephalosauria", "Pachycephalosauridae", "down"],
     ["Sauropodomorph", "Sauropod", "down"],
+    ["Sauropodomorph", "Eusauropoda", "down"],
+    ["Diplodocoidea", "Dicraeosauridae", "down"],
+    ["Diplodocoidea", "Rebbachisauridae", "down"],
+    ["Eusauropoda", "Sauropoda", "up"],
+    ["Titanosauriformes", "Brachiosauridae", "down"],
+    ["Titanosauriformes", "Titanosauria", "down"],        
+    ["Camarasauridae", "Brachiosauridae", "down"],
+    ["Camarasauridae", "Titanosauria", "down"],      
     ["Spinosaurinae", "Spinosaurini", "down"],
     ["Baryonychinae", "Ceratosuchopsini", "down"],
     ["Carcharodontosaurinae", "Giganotosaurini", "down"],
@@ -1473,18 +1486,33 @@ guessInput.addEventListener("input", () => {
     ["Theropod", "Saurischia", "up"],    
     ["Megalosauridae", "Carnosauria", "up"],    
     ["Metriacanthosauridae", "Carnosauria", "up"],    
+    ["Metriacanthosaurinae", "Metriacanthosauridae", "up"],    
     ["Maniraptoriform", "Ornithomimosauria", "up"],    
     ["Macrocheiriformes", "Ornithomimidae", "down"],
     ["Macrocheiriformes", "Deinocheiridae", "down"],    
     ["Maniraptoriform", "Maniraptora", "up"],    
     ["Paraves", "Troodontidae", "down"],    
     ["Averostra", "Ceratosauria", "down"],    
+    ["Averostra", "Averostriformes", "up"],    
     ["Ornithopoda", "Hadrosauridae", "down"],      
     ["Ornithopoda", "Hadrosauromorpha", "down"],        
     ["Hadrosauromorpha", "Hadrosauridae", "down"],     
     ["Hadrosauromorpha", "Styracosterna", "up"],        
     ["Styracosterna", "Hadrosauridae", "down"],        
-  ];
+    ["Stegosauria", "Thyreophora", "up"],        
+    ["Ankylosauria", "Thyreophora", "up"],  
+    ["Chasmosaurinae", "Neoceratopsia", "up"],  
+    ["Chasmosaurinae", "Ceratopsia", "up"],  
+    ["Chasmosaurinae", "Protoceratopsidae", "up"],  
+    ["Centrosaurinae", "Neoceratopsia", "up"],  
+    ["Centrosaurinae", "Ceratopsia", "up"],  
+    ["Centrosaurinae", "Protoceratopsidae", "up"],      
+    ["Pachycephalosaurinae", "Pachycephalosauridae", "up"],  
+    ["Pachycephalosauridae", "Pachycephalosauria", "up"],  
+    ["Pachycephalosaurinae", "Pachycephalosauria", "up"],  
+    ["Ornithopoda", "Neornithischia", "up"],  
+    ["Marginocephalia", "Neornithischia", "up"],  
+    ];
   
 function isDisputedMatch(targetName, guessedValue) {
   const genus = targetName.toLowerCase().split(" ")[0];
